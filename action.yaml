@@ -1,0 +1,58 @@
+name: Deploy datafile
+description: Deploy a new datafile.
+
+inputs:
+  id:
+    description: Unique identifier of the datafile.
+    required: true
+  position:
+    description: The index where datafiles appears in the app.
+    required: true
+  prod:
+    description: If true, deploy to production environment instead of staging.
+    required: true
+  service-account-key-base64:
+    description: Base64-encoded service account key to a Google account.
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Checkout database-tools
+      uses: actions/checkout@v3
+      with:
+        repository: otwartaturystyka/database-tools
+
+    - name: Checkout datafile repo
+      uses: actions/checkout@v3
+      with:
+        repository: otwartaturystyka/datafile-${{ inputs.id }}
+        path: datafiles/datafile-${{ inputs.id }}
+        lfs: true
+
+    - name: Print workspace
+      shell: bash
+      run: echo "workspace= ${{ github.workspace }}"
+
+    - name: Set up Google service account key
+      shell: bash
+      run: echo "${{ inputs.service-account-key-base64 }}" | base64 --decode > ${{ github.workspace }}/key.json
+
+    - name: Install Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+
+    - name: Install database-tools
+      shell: bash
+      run: make
+
+    - name: publish
+      shell: bash
+      run: >
+        prod_flag="";
+        if [ "${{ inputs.prod }}" = "true" ]; then
+          prod_flag="--prod";
+        fi;
+        ./publish "${{ inputs.id }}" "${{ inputs.position }}" "$prod_flag";
