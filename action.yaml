@@ -63,5 +63,6 @@ runs:
       with:
         name: ${{ github.ref_name }}
         files: |
+          generated/${{ inputs.id }}/meta.json
           generated/${{ inputs.id }}/data.json
           compressed/${{ inputs.id }}.zip
