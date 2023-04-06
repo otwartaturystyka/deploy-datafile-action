@@ -48,7 +48,7 @@ runs:
       shell: bash
       run: make
 
-    - name: publish
+    - name: Run publish script
       shell: bash
       run: >
         prod_flag="";
@@ -56,3 +56,12 @@ runs:
           prod_flag="--prod";
         fi;
         ./publish "${{ inputs.id }}" "${{ inputs.position }}" "$prod_flag";
+
+    - name: Create release on GitHub
+      uses: softprops/action-gh-release@v1
+      if: inputs.prod == 'true'
+      with:
+        name: ${{ github.ref_name }}
+        files: |
+          generated/${{ inputs.id }}/data.json
+          compressed/${{ inputs.id }}.zip
