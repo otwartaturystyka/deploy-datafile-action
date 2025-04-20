@@ -20,12 +20,12 @@ runs:
 
   steps:
     - name: Checkout database-tools
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: otwartaturystyka/database-tools
 
     - name: Checkout datafile repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: otwartaturystyka/datafile-${{ inputs.id }}
         path: datafiles/datafile-${{ inputs.id }}
@@ -40,7 +40,7 @@ runs:
       run: echo "${{ inputs.service-account-key-base64 }}" | base64 --decode > ${{ github.workspace }}/key.json
 
     - name: Install Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
 
@@ -58,7 +58,7 @@ runs:
         ./publish "${{ inputs.id }}" "${{ inputs.position }}" "$prod_flag";
 
     - name: Create release on GitHub
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: inputs.prod == 'true'
       with:
         name: ${{ github.ref_name }}
